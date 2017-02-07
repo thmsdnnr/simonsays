@@ -2,25 +2,28 @@ window.onload=function() {
 
   let GO= {
   round:1, //current round
-  turns:4, //set to 20 for normal simon
+  turns:20, //set to 20 for normal simon
   clickCt:0,
   isOver:false,
-  SEQUENCE_DELAY:400, //in ms
   COLOR_DELAY:500, //in ms
   sel:["#red","#green","#blue","#yellow"],
   numberToName:{red:0,green:1,blue:2,yellow:3},
   randomSimon:Array(0), //initial value
   strictMode:false};
 
-  let inputs=document.querySelectorAll('input');
-  inputs.forEach((i)=>i.addEventListener('click',handleMeta));
-  console.log(inputs);
+  let meta=document.querySelectorAll('.meta');
+  meta.forEach((i)=>i.addEventListener('click',handleMeta));
+  console.log(meta);
   computerTurn();
 
 function handleMeta(e) {
     console.log('meta',e);
     console.log(e.currentTarget.id);
-    if(e.currentTarget.id=="strict") {GO.strictMode=!GO.strictMode;}
+    if(e.currentTarget.id=="strict") {
+      GO.strictMode=!GO.strictMode;
+      let sButton=document.querySelector('button#strict');
+      (GO.strictMode) ? sButton.style.backgroundColor='tomato' : sButton.style.backgroundColor='silver';
+    }
     if(e.currentTarget.id=="reset") {reset(); console.log('reset');}
   }
 
@@ -82,8 +85,8 @@ function nextRound() {
 
 function handleClick(e) { //logic to play sounds and check click inputs
   console.log('clicked on',e.target.id);
-  var color=e.target.id;
-  playSound(color,null);
+  var selector='#'+e.target.id;
+  playTile(selector,null);
     if (GO.clickCt<GO.randomSimon.length)
     {
       var expected = GO.randomSimon[GO.clickCt];
@@ -113,7 +116,7 @@ function handleClick(e) { //logic to play sounds and check click inputs
             GO.clickCt=0;
             unbindClicks();
             document.querySelector('div#info').innerHTML="Eh, not quite. Try again!";
-            replaySequence();
+            setTimeout(function(){replaySequence(); updateDisplay();},1000);
           }
         }
       }
@@ -141,24 +144,19 @@ function playSequence(cb) {
   {
     let selector=GO.sel[GO.randomSimon[i]];
     setTimeout(function(){
-      playAnim(selector,function(){console.count('sound done');});
-    },i*GO.COLOR_DELAY);
+      playTile(selector);
+    },i*GO.COLOR_DELAY+100);
   }
   setTimeout(function(){
     cb();
   },GO.randomSimon.length*GO.COLOR_DELAY);
 }
 
-function playAnim(sel, callback) {
-  var color=sel.slice(1);
-  document.querySelector(sel).classList.add('animated');
-  playSound(color, function() {
-      document.querySelector(sel).classList.remove('animated');
-      callback();
-  });
-}
-
-  function playSound(color, cb) {
+function playTile(sel, cb) {
+  document.querySelector(sel).classList.remove('animated');
+  setTimeout(function(){
+    var color=sel.slice(1);
+    document.querySelector(sel).classList.add('animated');
     var red = document.getElementById("s_red");
     var green = document.getElementById("s_green");
     var blue = document.getElementById("s_blue");
@@ -167,7 +165,9 @@ function playAnim(sel, callback) {
     colors[color].currentTime=0;
     colors[color].play();
     colors[color].addEventListener('ended',function(){
+      document.querySelector(sel).classList.remove('animated');
       return (cb && typeof cb == "function") ? cb() : null;
-    });
+      });
+    },100);
   }
 }
