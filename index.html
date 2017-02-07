@@ -1,0 +1,24 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <script src="./simon.js"></script>
+</head>
+<title>simon app</title>
+<body>
+
+  <audio id="s_red" src="./sounds/ONE.wav" preload="auto"></audio>
+  <audio id="s_green" src="./sounds/TWO.wav" preload="auto"></audio>
+  <audio id="s_blue" src="./sounds/THREE.wav" preload="auto"></audio>
+  <audio id="s_yellow" src="./sounds/FOUR.wav" preload="auto"></audio>
+
+<div class="app">
+  <div class="control" id="red" value="0"></div>
+  <div class="control" id="green" value="1"></div>
+    <div class="control" id="blue" value="2"></div>
+    <div class="control" id="yellow" value="3"></div>
+  <div id="info"></div>
+  <div><div class="button"><label class="button"><input type="checkbox" id="strict" class="light"><div class="light"></div></label></div>
+  <input type="button" value="RESET" id="reset" /><br /><span>STRICT MODE | RESET</span></div>
+</div>
+</body>
+</html>
