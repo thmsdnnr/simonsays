@@ -1,16 +1,38 @@
-var GO= {
-round:1, //current round
-turns:4, //set to 20 for normal simon
-clickCt:0,
-isOver:false,
-SEQUENCE_DELAY:200, //in ms
-sel:["#red","#green","#blue","#yellow"],
-numberToName:{red:0,green:1,blue:2,yellow:3},
-randomSimon:Array(0), //initial value
-strictMode:false};
-//had div.app before
-function bindClicks() { $('div.control').unbind().click(function(){handleClick(event);}); console.log("bound clicks"); }
-function unbindClicks() { $('div.control').unbind('click'); console.log("UNbound clicks");}
+window.onload=function() {
+
+  let GO= {
+  round:1, //current round
+  turns:4, //set to 20 for normal simon
+  clickCt:0,
+  isOver:false,
+  SEQUENCE_DELAY:400, //in ms
+  sel:["#red","#green","#blue","#yellow"],
+  numberToName:{red:0,green:1,blue:2,yellow:3},
+  randomSimon:Array(0), //initial value
+  strictMode:false};
+  //had div.app before
+
+
+computerTurn();
+document.querySelector('input').addEventListener('click',handleMeta)
+
+function handleMeta(e) {
+    console.log(e);
+    console.log(e.currentTarget.id);
+    if(e.currentTarget.id=="strict") {GO.strictMode=!GO.strictMode;}
+    if(e.currentTarget.id=="reset") {reset();}
+  }
+
+function bindClicks() {
+  let colorControls=document.querySelectorAll('div.control');
+  colorControls.forEach((c)=>c.addEventListener('click', handleClick));
+  console.log("bound clicks");
+}
+function unbindClicks() {
+  let colorControls=document.querySelectorAll('div.control');
+  colorControls.forEach((c)=>c.removeEventListener('click', handleClick));
+  console.log("UNbound clicks");
+}
 
 function replaySequence() {
   console.log(GO.randomSimon);
@@ -48,7 +70,7 @@ function nextRound() {
   else
   {
     GO.isOver=true;
-    $('.info').empty().append("YOU WON YOU ARE SO GREAT!");
+    document.querySelector('div#info').innerHTML="YOU WON YOU ARE SO GREAT!";
     setTimeout(reset,1000);
   }
 }
@@ -78,14 +100,14 @@ function handleClick(e) { //logic to play sounds and check click inputs
         if (GO.strictMode)
         {
         unbindClicks();
-        $('.info').empty().append("YOU LOST :( NOW WE START AGAIN.");
+        document.querySelector('div#info').innerHTML="YOU LOST :( NOW WE START AGAIN.";
         setTimeout(reset,2000);
         }
         else
         {
           GO.clickCt=0;
           unbindClicks();
-          $('.info').empty().append("Eh, not quite. Try again!");
+          document.querySelector('div#info').innerHTML="Eh, not quite. Try again!";
           setTimeout(replaySequence,600); // rebind clicks after sequence is played through callback
         }
       }
@@ -97,17 +119,6 @@ function handleClick(e) { //logic to play sounds and check click inputs
   }
 }
 
-$(document).ready(function(){
-  computerTurn();
-
-  $('input').click(function(e){
-    console.log(e);
-    console.log(e.currentTarget.id);
-    if(e.currentTarget.id=="strict") {GO.strictMode=!GO.strictMode;}
-    if(e.currentTarget.id=="reset") {reset();}
-});
-});
-
 function reset() {
   GO.round=1;
   GO.clickCt=0;
@@ -117,7 +128,7 @@ function reset() {
 }
 
 function updateDisplay() {
-  $('.info').empty().append("Current Round: "+GO.round)
+  document.querySelector('div#info').innerHTML="Current Round: "+GO.round;
 }
 
 function playSequence(seq) {
@@ -134,6 +145,7 @@ function playSound(color) {
   var blue = document.getElementById("s_blue");
   var yellow = document.getElementById("s_yellow");
   var colors = {red:red,green:green,blue:blue,yellow:yellow};
+  colors[color].currentTime=0;
   colors[color].play();
 }
 
@@ -141,6 +153,9 @@ function playAnim(sel, delay) {
   GO.animTimeout = setTimeout(function(){
   var color=sel.slice(1);
   playSound(color);
-$(sel).animate({opacity: 0.3},((GO.SEQUENCE_DELAY/2)-50)).animate({opacity: 1.0},((GO.SEQUENCE_DELAY/2)-50));
-},delay);
+  document.querySelector(sel).classList.add('animated');
+  setTimeout(function(){document.querySelector(sel).classList.remove('animated');},GO.SEQUENCE_DELAY);
+  },delay);
+}
+
 }
