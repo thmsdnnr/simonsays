@@ -3,7 +3,7 @@ round:1, //current round
 turns:4, //set to 20 for normal simon
 clickCt:0,
 isOver:false,
-SEQUENCE_DELAY:600, //in ms
+SEQUENCE_DELAY:200, //in ms
 sel:["#red","#green","#blue","#yellow"],
 numberToName:{red:0,green:1,blue:2,yellow:3},
 randomSimon:Array(0), //initial value
@@ -15,19 +15,19 @@ function unbindClicks() { $('div.control').unbind('click'); console.log("UNbound
 function replaySequence() {
   console.log(GO.randomSimon);
   playSequence(GO.randomSimon);
-  setTimeout(bindClicks,((GO.SEQUENCE_DELAY*GO.randomSimon.length)+10));
+  setTimeout(bindClicks,((GO.SEQUENCE_DELAY*GO.randomSimon.length)+400));
 }
 
-function computerTurn() 
+function computerTurn()
 {
   unbindClicks();
   updateDisplay();
   GO.randomSimon.push(Math.floor(Math.random()*4));
   playSequence(GO.randomSimon);
-  setTimeout(playerTurn,(GO.SEQUENCE_DELAY*GO.randomSimon.length));
+  setTimeout(playerTurn,(GO.SEQUENCE_DELAY*GO.randomSimon.length+400));
 }
 
-function playerTurn() { 
+function playerTurn() {
   bindClicks();
   var interval = setInterval(function(){
     if ((GO.clickCt==GO.randomSimon.length)&&(!GO.isOver)) {
@@ -43,9 +43,9 @@ function nextRound() {
     GO.round++;
     GO.clickCt=0;
     console.log("nextRound Round: "+GO.round+" nextRound clickCt: "+GO.clickCt);
-    computerTurn();
+    setTimeout(computerTurn,1000);
   }
-  else 
+  else
   {
     GO.isOver=true;
     $('.info').empty().append("YOU WON YOU ARE SO GREAT!");
@@ -54,36 +54,39 @@ function nextRound() {
 }
 
 function handleClick(e) { //logic to play sounds and check click inputs
+  console.log('clicked on',e.target.id);
+  var color=e.target.id;
+  playSound(color);
   if (GO.clickCt<GO.randomSimon.length) //where 10 is really GO.turns on turn=10
   {
     var expected = GO.randomSimon[GO.clickCt];
     var actual = GO.numberToName[e.target.id]; // input value
-    
+
     if (actual!=undefined) // will be undefined if click on board but not on a tile with a target
-    {         
-      if (expected===actual) 
-      { 
+    {
+      if (expected===actual)
+      {
         console.log("right");
         console.log("clickCt: "+GO.clickCt+" expected: "+expected+" actual: "+actual);
         GO.clickCt++;
-      }  
-      else 
-      { 
+      }
+      else
+      {
         console.log("wrong");
         console.log("clickCt: "+GO.clickCt+" expected: "+expected+" actual: "+actual);
         //repeat playing the sequence if not in strict mode, otherwise reset and start again
-        if (GO.strictMode) 
-        { 
+        if (GO.strictMode)
+        {
         unbindClicks();
         $('.info').empty().append("YOU LOST :( NOW WE START AGAIN.");
         setTimeout(reset,2000);
         }
-        else 
+        else
         {
           GO.clickCt=0;
           unbindClicks();
           $('.info').empty().append("Eh, not quite. Try again!");
-          replaySequence(); // rebind clicks after sequence is played through callback
+          setTimeout(replaySequence,600); // rebind clicks after sequence is played through callback
         }
       }
     }
@@ -96,7 +99,13 @@ function handleClick(e) { //logic to play sounds and check click inputs
 
 $(document).ready(function(){
   computerTurn();
-  //bind event handlers to controllers for strict mode and RESET options
+
+  $('input').click(function(e){
+    console.log(e);
+    console.log(e.currentTarget.id);
+    if(e.currentTarget.id=="strict") {GO.strictMode=!GO.strictMode;}
+    if(e.currentTarget.id=="reset") {reset();}
+});
 });
 
 function reset() {
@@ -118,15 +127,20 @@ function playSequence(seq) {
   }
 }
 
-function playAnim(sel, delay) {
+function playSound(color) {
+  console.log('playing sound');
   var red = document.getElementById("s_red");
   var green = document.getElementById("s_green");
   var blue = document.getElementById("s_blue");
   var yellow = document.getElementById("s_yellow");
   var colors = {red:red,green:green,blue:blue,yellow:yellow};
+  colors[color].play();
+}
+
+function playAnim(sel, delay) {
   GO.animTimeout = setTimeout(function(){
   var color=sel.slice(1);
-  colors[color].play();
+  playSound(color);
 $(sel).animate({opacity: 0.3},((GO.SEQUENCE_DELAY/2)-50)).animate({opacity: 1.0},((GO.SEQUENCE_DELAY/2)-50));
 },delay);
 }
