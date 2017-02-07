@@ -141,7 +141,7 @@ function playSequence(cb) {
   {
     let selector=GO.sel[GO.randomSimon[i]];
     setTimeout(function(){
-      playAnim(selector);
+      playAnim(selector,function(){console.count('sound done');});
     },i*GO.COLOR_DELAY);
   }
   setTimeout(function(){
@@ -154,6 +154,7 @@ function playAnim(sel, callback) {
   document.querySelector(sel).classList.add('animated');
   playSound(color, function() {
       document.querySelector(sel).classList.remove('animated');
+      callback();
   });
 }
 
