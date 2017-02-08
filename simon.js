@@ -33,7 +33,10 @@ window.onload=function() {
   let soundNames=['ONE.mp3','TWO.mp3','THREE.mp3','FOUR.mp3'];
   let soundPromises=soundNames.map((s)=>loadSound(s));
   //once our sounds are loaded, start the game
-  Promise.all(soundPromises).then(function(s){ GO.sounds=s; gameInit(); });
+  Promise.all(soundPromises).then(function(s){
+    GO.sounds=s;
+    setTimeout(gameInit,1000); //pause a tad bit so it doesn't start too immediately
+  });
 
   function gameInit() {
     //add click handlers for controls
