@@ -1,5 +1,5 @@
 #SIMON SAYS
-Simon Says game using Vanilla JS and sound FX I synthesized myself in Logic Pro :)
+Simon Says game using Vanilla JS, WebAudio API, and sound FX I synthesized myself in Logic Pro :)
 
 Game loop:
 
